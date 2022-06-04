@@ -43,7 +43,6 @@ class InferenceNode(object):
     def publish_bboxes(self, out: CalcScoreOutput):
         # get bboxes list
         bboxes = out.normalized_bboxes_list
-        print(list(itertools.chain(*bboxes)))
         # define dimensions
         layout = MultiArrayLayout()
         layout.data_offset = 0
