@@ -1,6 +1,6 @@
 import os
 
-BASE_PATH        = os.path.abspath("/mnt/sda1/Projects/PycharmProjects/DQNScoresFunction")
+BASE_PATH        = os.path.abspath("./")
 
 # define model paths
 CKPT_PATH        = os.path.join(BASE_PATH, "model/ckpt-251")
