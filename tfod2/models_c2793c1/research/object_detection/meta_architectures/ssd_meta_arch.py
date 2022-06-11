@@ -818,7 +818,6 @@ class SSDMetaArch(model.DetectionModel):
             fields.DetectionResultFields.detection_masks] = nmsed_masks
 
       ##### [kmortyk] custom score logic ###############################################################################
-      detects = detection_dict
       boxes = detection_dict['detection_boxes'][0]
       # confs = detects['detection_scores'][0]
 
@@ -846,8 +845,8 @@ class SSDMetaArch(model.DetectionModel):
 
       dqn_scores_area, dqn_scores_dst_sq = tf.py_function(func=calculate_score, inp=[boxes], Tout=[tf.float64, tf.float64])
 
-      detects['dqn_scores_area']   = dqn_scores_area
-      detects['dqn_scores_dst_sq'] = dqn_scores_dst_sq
+      detection_dict['dqn_scores_area']   = dqn_scores_area
+      detection_dict['dqn_scores_dst_sq'] = dqn_scores_dst_sq
       ##################################################################################################################
 
       return detection_dict
