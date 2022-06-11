@@ -7,6 +7,7 @@ from std_msgs.msg import Float64, Float64MultiArray, Bool, MultiArrayLayout, Mul
 from src.config import configure_script # do not delete
 from src.config import config
 from src.model import CalcScoreOutput
+from src.model.calc_score_output import DqnScore
 from src.ros.fps_meter import FPSMeter
 import src.calc as calc
 
@@ -16,7 +17,7 @@ class InferenceNode(object):
         # init node
         rospy.init_node(self.name(), anonymous=False)
         # topics
-        self.pub_scr = rospy.Publisher('inference_scores', Float64, queue_size=config.PUBLISH_QUEUE_SIZE)
+        self.pub_scr = rospy.Publisher('inference_scores', Float64MultiArray, queue_size=config.PUBLISH_QUEUE_SIZE)
         self.pub_bbx = rospy.Publisher('inference_bboxes', Float64MultiArray, queue_size=config.PUBLISH_QUEUE_SIZE)
         self.pub_flag_reached = rospy.Publisher('inference_reached', Bool, queue_size=config.PUBLISH_QUEUE_SIZE)
         # other utils
@@ -31,8 +32,16 @@ class InferenceNode(object):
         return "inference_node"
 
     def publish_scores(self, out: CalcScoreOutput):
-        msg = Float64()
-        msg.data = out.nearest_score
+        # get bboxes list
+        dqn_score: DqnScore = out.nearest_score
+        # define dimensions
+        layout = MultiArrayLayout()
+        layout.data_offset = 0
+        layout.dim.append(MultiArrayDimension("components[area,dst_sq]", 2, 1))
+        # create msg
+        msg = Float64MultiArray()
+        msg.layout = layout
+        msg.data = [dqn_score.dqn_scores_area, dqn_score.dqn_scores_dst_sq]
         self.pub_scr.publish(msg)
 
     def publish_reached(self, out: CalcScoreOutput):

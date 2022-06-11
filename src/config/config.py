@@ -3,7 +3,7 @@ import os
 BASE_PATH        = os.path.abspath("./")
 
 # define model paths
-CKPT_PATH        = os.path.join(BASE_PATH, "model/ckpt-251")
+CKPT_PATH        = os.path.join(BASE_PATH, "model/tfod/ckpt-251")
 PIPELINE_PATH    = os.path.join(BASE_PATH, "model/pipeline.config")
 PATH_TO_LABELS   = os.path.join(BASE_PATH, "model/classes.pbtxt")
 

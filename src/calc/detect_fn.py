@@ -29,10 +29,6 @@ def detect_fn(image):
     image, shapes = detection_model.preprocess(image)
     prediction_dict = detection_model.predict(image, shapes)
 
-    # configure area and center dst scalars
-    prediction_dict['center_dst_scalar'] = 1
-    prediction_dict['area_scalar'] = 1
-
     detects = detection_model.postprocess(prediction_dict, shapes)
 
     return detects, prediction_dict, tf.reshape(shapes, [-1])

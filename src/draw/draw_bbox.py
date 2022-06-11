@@ -21,7 +21,7 @@ def draw_bbox(dst, bbox: Bbox, score=0.5, label="object", color=COLOR):
     max_y = int(bbox.y_max * height)
 
     # draw the prediction on the output image
-    label = "{}: {:.2f}".format(label, score)
+    label = f"{label}: {score}"
     cv2.rectangle(dst, (min_x, min_y), (max_x, max_y), color, 2)
     y = min_y - 10 if min_y - 10 > 10 else min_y + 10
 

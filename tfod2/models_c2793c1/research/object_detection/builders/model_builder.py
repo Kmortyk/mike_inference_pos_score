@@ -35,7 +35,8 @@ from object_detection.meta_architectures import faster_rcnn_meta_arch
 from object_detection.meta_architectures import rfcn_meta_arch
 
 # TODO changed this line
-from tfod2.models_c2793c1.research.object_detection.meta_architectures import ssd_meta_arch
+# from tfod2.models_c2793c1.research.object_detection.meta_architectures import ssd_meta_arch
+from object_detection.meta_architectures import ssd_meta_arch
 
 from object_detection.predictors.heads import mask_head
 from object_detection.protos import losses_pb2

@@ -12,7 +12,7 @@ run-video:
 	./scripts/run-video.sh
 
 # run ros node with publishing values to topics
-run-node:
+run-ros:
 	./scripts/run-ros.sh
 
 docker-build:

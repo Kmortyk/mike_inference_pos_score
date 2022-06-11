@@ -820,34 +820,37 @@ class SSDMetaArch(model.DetectionModel):
       ##### [kmortyk] custom score logic ###############################################################################
       detects = detection_dict
       boxes = detection_dict['detection_boxes'][0]
-      confs = detects['detection_scores'][0]
+      # confs = detects['detection_scores'][0]
 
-      def calculate_score(boxes: tf.Tensor, confs: tf.Tensor):
-          boxes_numpy = boxes.numpy()
-          confs_numpy = confs.numpy()
-
-          boxes_count = boxes_numpy.shape[0]
-          dqn_scores = np.zeros((boxes_count,))
+      def calculate_score(boxes: tf.Tensor):
+          boxes_numpy       = boxes.numpy()
+          boxes_count       = boxes_numpy.shape[0]
+          dqn_scores_area   = np.zeros((boxes_count,))
+          dqn_scores_dst_sq = np.zeros((boxes_count,))
 
           for i in range(boxes_count):
               y_min, x_min, y_max, x_max = boxes_numpy[i]
-              conf = confs_numpy[i]
               bbox_size = (x_max - x_min, y_max - y_min)
 
               bbox_area = bbox_size[0] * bbox_size[1]
               bbox_cx = x_min + bbox_size[0] / 2
               bbox_cy = y_min + bbox_size[1] / 2
 
-              center_delta = math.sqrt((0.5 - bbox_cx) ** 2 + (0.5 - bbox_cy) ** 2)
+              center_delta_sq = (0.5 - bbox_cx) ** 2 + (0.5 - bbox_cy) ** 2
 
-              dqn_scores[i] = conf*(50 * bbox_area + 50 * (1 - center_delta))
+              dqn_scores_area[i]   = bbox_area
+              dqn_scores_dst_sq[i] = center_delta_sq
 
-          return tf.convert_to_tensor(dqn_scores)
+          return tf.convert_to_tensor(dqn_scores_area), \
+                 tf.convert_to_tensor(dqn_scores_dst_sq)
 
-      detects['dqn_scores'] = tf.py_function(func=calculate_score, inp=[boxes, confs], Tout=tf.float64)
+      dqn_scores_area, dqn_scores_dst_sq = tf.py_function(func=calculate_score, inp=[boxes], Tout=[tf.float64, tf.float64])
+
+      detects['dqn_scores_area']   = dqn_scores_area
+      detects['dqn_scores_dst_sq'] = dqn_scores_dst_sq
       ##################################################################################################################
 
-      return detects
+      return detection_dict
 
   def loss(self, prediction_dict, true_image_shapes, scope=None):
     """Compute scalar loss tensors with respect to provided groundtruth.

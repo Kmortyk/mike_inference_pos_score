@@ -108,7 +108,9 @@ class DetectionInferenceModule(tf.Module):
         elems=batch_input,
         parallel_iterations=32,
         back_prop=False,
-        fn_output_signature=(tf.float32, tf.int32))
+        # fn_output_signature=(tf.float32, tf.int32), todo return this
+        dtype=(tf.float32, tf.int32)
+    )
     return images, true_shapes
 
   def _run_inference_on_images(self, images, true_shapes, **kwargs):
