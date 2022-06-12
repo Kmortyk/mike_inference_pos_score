@@ -12,6 +12,7 @@ from src.model import CalcScoreOutput
 from src.model.calc_score_output import DqnScore
 from src.ros.fps_meter import FPSMeter
 import src.calc as calc
+import numpy as np
 
 class InferenceNode(object):
     def __init__(self):
@@ -22,7 +23,6 @@ class InferenceNode(object):
         self.pub_bbx = rospy.Publisher('inference_bboxes', Float64MultiArray, queue_size=config.PUBLISH_QUEUE_SIZE)
         self.pub_flag_reached = rospy.Publisher('inference_reached', Bool, queue_size=config.PUBLISH_QUEUE_SIZE)
         # other utils
-        self.bridge = CvBridge()
         self.fps_meter = FPSMeter()
 
     @staticmethod
@@ -67,7 +67,7 @@ class InferenceNode(object):
 
     def callback_factory(self):
         def callback(msg: Image):
-            frame = self.bridge.imgmsg_to_cv2(msg)
+            frame = np.frombuffer(msg.data, dtype=np.uint8).reshape(msg.height, msg.width, -1)
 
             with self.fps_meter:
                 out = calc.calc_score_image(frame)
