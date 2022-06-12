@@ -5,6 +5,9 @@ import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
+from src.config import config
+
+
 class CameraNode(object):
     def __init__(self, camera_idx):
         rospy.init_node(CameraNode.name(), anonymous=False, log_level=rospy.INFO)
@@ -33,4 +36,4 @@ class CameraNode(object):
         return 'mike_camera'
 
 if __name__ == '__main__':
-    CameraNode(0).start()
+    CameraNode(config.CAMERA_INDEX).start()
