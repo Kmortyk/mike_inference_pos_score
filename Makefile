@@ -15,6 +15,14 @@ run-video:
 run-ros:
 	./scripts/run-ros.sh
 
+# run ros node with subscription to image topic
+run-ros-sep-img:
+	./scripts/run-ros-sep-img.sh
+
+# run test camera node
+run-ros-test-img:
+	./scripts/run-ros-test-img.sh
+
 docker-build:
 	docker build . -t km/dqn_scores_function:1.0
 

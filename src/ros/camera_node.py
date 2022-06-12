@@ -14,7 +14,7 @@ class CameraNode(object):
         self.bridge    = CvBridge()
         self.loop_rate = rospy.Rate(100)
 
-        self.pub = rospy.Publisher(self.name(), Image, queue_size=10)
+        self.pub = rospy.Publisher('raw', Image, queue_size=10)
 
     def start(self):
         while not rospy.is_shutdown():
@@ -30,7 +30,7 @@ class CameraNode(object):
 
     @staticmethod
     def name() -> str:
-        return 'image_module'
+        return 'mike_camera'
 
 if __name__ == '__main__':
     CameraNode(0).start()
