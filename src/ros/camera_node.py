@@ -13,6 +13,7 @@ class CameraNode(object):
         rospy.init_node(CameraNode.name(), anonymous=False, log_level=rospy.INFO)
         print(f"[⌛] open device {camera_idx} ...")
         self.cap = cv2.VideoCapture(camera_idx)
+        print(f"[⌛] successfully opened ...")
         self.bridge    = CvBridge()
         self.loop_rate = rospy.Rate(100)
         self.pub = rospy.Publisher(CameraNode.name() + '/raw', Image, queue_size=10)
