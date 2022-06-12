@@ -7,14 +7,14 @@ from cv_bridge import CvBridge
 
 class CameraNode(object):
     def __init__(self, camera_idx):
-        rospy.init_node(self.name(), anonymous=False, log_level=rospy.INFO)
+        rospy.init_node(CameraNode.name(), anonymous=False, log_level=rospy.INFO)
 
         self.cap = cv2.VideoCapture(camera_idx)
 
         self.bridge    = CvBridge()
         self.loop_rate = rospy.Rate(100)
 
-        self.pub = rospy.Publisher('raw', Image, queue_size=10)
+        self.pub = rospy.Publisher(CameraNode.name() + '/raw', Image, queue_size=10)
 
     def start(self):
         while not rospy.is_shutdown():
