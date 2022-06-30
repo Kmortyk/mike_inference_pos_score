@@ -1,10 +1,12 @@
 import itertools
 import sys
-import cv2
+import time
 
 import rospy
 from std_msgs.msg import Float64, Float64MultiArray, Bool, MultiArrayLayout, MultiArrayDimension
-from src.config import configure_script # do not delete
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+from src.config import configure_script  # do not delete
 from src.config import config
 from src.model import CalcScoreOutput
 from src.model.calc_score_output import DqnScore
@@ -17,19 +19,23 @@ class InferenceNode(object):
         # init node
         rospy.init_node(self.name(), anonymous=False)
         # topics
+        rospy.Subscriber(config.CAMERA_TOPIC, Image, self.img_callback)
         self.pub_scr = rospy.Publisher('inference_scores', Float64MultiArray, queue_size=config.PUBLISH_QUEUE_SIZE)
         self.pub_bbx = rospy.Publisher('inference_bboxes', Float64MultiArray, queue_size=config.PUBLISH_QUEUE_SIZE)
         self.pub_flag_reached = rospy.Publisher('inference_reached', Bool, queue_size=config.PUBLISH_QUEUE_SIZE)
         # other utils
-        self.cap = cv2.VideoCapture(config.CAMERA_INDEX)
+        # self.cap = cv2.VideoCapture(config.CAMERA_INDEX)
         self.fps_meter = FPSMeter()
-        # check camera here, before start of the node
-        if not self.cap.isOpened():
-            sys.exit(f"[e] cannot open camera by index '{config.CAMERA_INDEX}'. exit.")
+        self.cv_bridge = CvBridge()
+        # nodes
+        self.frame = None
 
     @staticmethod
     def name():
         return "inference_node"
+
+    def img_callback(self, msg):
+        self.frame = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
 
     def publish_scores(self, out: CalcScoreOutput):
         # get bboxes list
@@ -58,19 +64,23 @@ class InferenceNode(object):
         layout.dim.append(MultiArrayDimension("len", len(bboxes), 4))
         layout.dim.append(MultiArrayDimension("coord", 4, 1))
         # create msg
-        msg        = Float64MultiArray()
+        msg = Float64MultiArray()
         msg.layout = layout
-        msg.data   = list(itertools.chain(*bboxes))
+        msg.data = list(itertools.chain(*bboxes))
         self.pub_bbx.publish(msg)
 
     def start(self):
         while True:
-            ret, frame = self.cap.read()
-            if not ret:
-                sys.exit(f"[e] can't receive frame from camera '{config.CAMERA_INDEX}'. exit.")
+            if self.frame is None:
+                print("[⌛][atm(⚛)] got no frame. trying again ...")
+                time.sleep(0.1)
+                continue
 
             with self.fps_meter:
-                out = calc.calc_score_image(frame)
+                f = self.frame
+                self.frame = None
+
+                out = calc.calc_score_image(f)
 
             # publish calculated values
             self.publish_scores(out)
@@ -80,6 +90,7 @@ class InferenceNode(object):
             # print node info
             self.fps_meter.print()
             print(f"[⌛] publish bounding boxes and scores {out}.")
+
 
 if __name__ == '__main__':
     print("[⌛][atm(⚛)] start inference node ...")
