@@ -25,7 +25,6 @@ class InferenceNode(object):
         self.pub_flag_reached = rospy.Publisher('inference_reached', Bool, queue_size=config.PUBLISH_QUEUE_SIZE)
         # other utils
         self.fps_meter = FPSMeter()
-        self.cv_bridge = CvBridge()
         # nodes
         self.frame = None
 
