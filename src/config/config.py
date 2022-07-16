@@ -19,7 +19,7 @@ TFOD2_PATH      = os.path.join(BASE_PATH, "tfod2/models_c2793c1/research")
 TFOD2_SLIM_PATH = os.path.join(BASE_PATH, "tfod2/models_c2793c1/research/slim")
 
 # camera topic for the main_video script
-CAMERA_TOPIC = "mike_camera/raw"
+CAMERA_TOPIC = "jetbot_camera/raw"
 
 # size of the topics queue
 PUBLISH_QUEUE_SIZE = 100

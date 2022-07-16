@@ -5,13 +5,13 @@ import time
 import rospy
 from std_msgs.msg import Float64, Float64MultiArray, Bool, MultiArrayLayout, MultiArrayDimension
 from sensor_msgs.msg import Image
-from cv_bridge import CvBridge
 from src.config import configure_script  # do not delete
 from src.config import config
 from src.model import CalcScoreOutput
 from src.model.calc_score_output import DqnScore
 from src.ros.fps_meter import FPSMeter
 import src.calc as calc
+import numpy as np
 
 
 class InferenceNode(object):
@@ -24,7 +24,6 @@ class InferenceNode(object):
         self.pub_bbx = rospy.Publisher('inference_bboxes', Float64MultiArray, queue_size=config.PUBLISH_QUEUE_SIZE)
         self.pub_flag_reached = rospy.Publisher('inference_reached', Bool, queue_size=config.PUBLISH_QUEUE_SIZE)
         # other utils
-        # self.cap = cv2.VideoCapture(config.CAMERA_INDEX)
         self.fps_meter = FPSMeter()
         self.cv_bridge = CvBridge()
         # nodes
@@ -34,8 +33,8 @@ class InferenceNode(object):
     def name():
         return "inference_node"
 
-    def img_callback(self, msg):
-        self.frame = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
+    def img_callback(self, image_data):
+        self.frame = np.frombuffer(image_data.data, dtype=np.uint8).reshape(image_data.height, image_data.width, -1)
 
     def publish_scores(self, out: CalcScoreOutput):
         # get bboxes list
